@@ -207,7 +207,7 @@ def reserve_table(indoor, num):
         res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200,
                        content_type="application.json")
     else:
-        resp_error = "Could not reserve: " + resp.text
+        resp_error = "Could not reserve table of {} guests for {}: ".format(num, user_email) + resp.text
         print(resp_error)
         res = Response(resp_error, status=resp.status_code, content_type="application.json")
     return res
