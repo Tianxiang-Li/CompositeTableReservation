@@ -206,7 +206,7 @@ def reserve_indoor_table(num):
     email = requests.get(REGISTRATION['api'])
     email_data = email.json()
     user_email = email_data[0]['email']
-
+    print(user_email)
     # may also try input user email
 
     # put to reservation schema
@@ -243,7 +243,7 @@ def reserve_outdoor_table(num):
     email = requests.get(REGISTRATION['api'])
     email_data = email.json()
     user_email = email_data[0]['email']
-
+    print(user_email)
     # may also try input user email
 
     # put to reservation schema
