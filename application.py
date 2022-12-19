@@ -2,26 +2,10 @@ from flask import Flask, Response, request
 from flask_cors import CORS
 import json
 import requests
+from datetime import datetime
 from requests_futures.sessions import FuturesSession
 from typing import *
 
-# Create logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# Handler 
-LOG_FILE = '/tmp/sample-app.log'
-handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1048576, backupCount=5)
-handler.setLevel(logging.INFO)
-
-# Formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Add Formatter to Handler
-handler.setFormatter(formatter)
-
-# add Handler to Logger
-logger.addHandler(handler)
 
 welcome = """
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -111,26 +95,18 @@ welcome = """
 </head>
 <body id="sample">
   <div class="textColumn">
-    <h1>Tables Manipulation</h1>
-    <p>This is the Home page to manipulate tables</p>
-    <p>To add table:</p>
+    <h1>Table Reservation</h1>
+    <p>This is the Composite Service for Table Reservation</p>
+    <p>To add reservation:</p>
     <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/add/indoor/[#capacity]' to add indoor table with #capacity number of seats.</p>
     <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/add/outdoor/[#capacity]' to add outdoor table with #capacity number of seats.</p>
-    <p>To delete table:</p>
-    <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/delete/indoor/[#capacity]' to delete 1 indoor table with #capacity number of seats.</p>
-    <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/delete/outdoor/[#capacity]' to delete 1 outdoor table with #capacity number of seats.</p>
     <p>This environment is launched with Elastic Beanstalk Python Platform</p>
   </div>
   
   <div class="linksColumn"> 
-    <h2>Sample links:</h2>
+    <h2>Get Informations:</h2>
     <ul>
     <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/health">Test Connectivity: append '/api/health'</a></li>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get/indoor">Get all indoor tables: append '/api/tables/get/indoor'</a></li>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get/outdoor">Get all outdoor tables: append '/api/tables/get/outdoor'</a></li>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get/seats/1">Get all tables with at least 1 seat : append '/api/tables/get/seats/1'</a></li>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get/all">Get all tables: append '/api/tables/get/all'</a></li>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get/indoor/1">Get all indoor talbes with at least 1 seat : append '/api/tables/get/indoor/1'</a></li>
     </ul>
   </div>
 </body>
@@ -164,6 +140,8 @@ def application(environ, start_response):
 #"""
 
 application = Flask(__name__)
+CORS(application)
+sess = FuturesSession()
 
 
 @application.route("/", methods=["GET"])
@@ -175,7 +153,7 @@ def simple_get():
 def get_health():
     t = str(datetime.now())
     msg = {
-        "name": "Tables",
+        "name": "Table Reservation",
         "health": "Good",
         "at time": t
     }
@@ -191,106 +169,6 @@ def get_health():
 @application.route("/api/tables/add/indoor/<cap>", methods=["GET", "PUT"])
 def add_indoor_table(cap):
     result = Tables.add_table(cap, True)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-
-@application.route("/api/tables/add/outdoor/<cap>", methods=["GET", "PUT"])
-def add_outdoor_table(cap):
-    result = Tables.add_table(cap, False)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-
-#####################################################################################################################
-#                                                 get tables                                                        #
-#####################################################################################################################
-@application.route("/api/tables/get/all", methods=["GET"])
-def get_all():
-    result = Tables.get_all()
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-@application.route("/api/tables/get/seats/<num>", methods=["GET"])
-def get_by_number(num):
-    result = Tables.get_by_number(num)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-    return rsp
-
-
-@application.route("/api/tables/get/indoor", methods=["GET"])
-def get_indoor():
-    result = Tables.get_indoor(True)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-
-@application.route("/api/tables/get/outdoor", methods=["GET"])
-def get_outdoor():
-    result = Tables.get_indoor(False)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-@application.route("/api/tables/get/indoor/<num>", methods=["GET"])
-def get_num_indoor(num):
-    result = Tables.get_num_indoor(num, True)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-@application.route("/api/tables/get/outdoor/<num>", methods=["GET"])
-def get_num_outdoor(num):
-    result = Tables.get_num_indoor(num, False)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-#####################################################################################################################
-#                                                delete tables                                                      #
-#####################################################################################################################
-@application.route("/api/tables/delete/outdoor/<cap>", methods=["GET", "PUT"])
-def delete_outdoor_table(cap):
-    result = Tables.delete_last_table(cap, False)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
-
-    return rsp
-
-
-@application.route("/api/tables/delete/indoor/<cap>", methods=["GET", "PUT"])
-def delete_indoor_table(cap):
-    result = Tables.delete_last_table(cap, True)
     if result:
         rsp = Response(json.dumps(result), status=200, content_type="application.json")
     else:
