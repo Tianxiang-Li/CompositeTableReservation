@@ -99,8 +99,8 @@ welcome = """
     <h1>Table Reservation</h1>
     <p>This is the Composite Service for Table Reservation</p>
     <p>To add reservation:</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/[#num]' to reserve indoor table for #num number of guests.</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/[#num]' to reserve outdoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/[user_email]/[#num]' to reserve indoor table for user_email with #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/[user_email]/[#num]' to reserve outdoor table for user_email with #num number of guests.</p>
     <p>This environment is launched with Elastic Beanstalk Python Platform</p>
   </div>
   
@@ -108,7 +108,7 @@ welcome = """
     <h2>Get Informations:</h2>
     <ul>
     <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/health">Test Connectivity: append '/api/health'</a></li>
-    <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/get/[#num]">Get the number of tables indoor and outdoor availble for #num guests</a></li>
+    <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/get/5">Get the number of tables indoor and outdoor availble for 5 guests</a></li>
     </ul>
   </div>
 </body>
@@ -211,8 +211,8 @@ def get_num_table(num):
 #####################################################################################################################
 #                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/table_reserve/indoor/<num>", methods=["GET", "PUT"])
-def reserve_indoor_table(num):
+@application.route("/api/table_reserve/indoor/<user_email>/<num>", methods=["GET", "PUT"])
+def reserve_indoor_table(user_email, num):
     # table id
     tables = requests.get(TABLES['api'] + '/indoor/{}'.format(num))
     tables_data = tables.json()
@@ -234,9 +234,9 @@ def reserve_indoor_table(num):
         return Response("No available indoor seats", status=404, content_type="application.json")
 
     # user email
-    email = requests.get(REGISTRATION['api'])
-    email_data = email.json()
-    user_email = email_data[0]['email']
+    #email = requests.get(REGISTRATION['api'])
+    #email_data = email.json()
+    #user_email = email_data[0]['email']
     print(user_email)
     # may also try input user email
 
@@ -248,8 +248,8 @@ def reserve_indoor_table(num):
         res = Response("Something went wrong", status=400, content_type="application.json")
     return res
 
-@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
-def reserve_outdoor_table(num):
+@application.route("/api/table_reserve/outdoor/<user_email>/<num>", methods=["GET", "PUT"])
+def reserve_outdoor_table(user_email, num):
     # table id
     tables = requests.get(TABLES['api'] + '/outdoor/{}'.format(num))
     tables_data = tables.json()
@@ -271,9 +271,9 @@ def reserve_outdoor_table(num):
         return Response("No available outdoor seats", status=404, content_type="application.json")
 
     # user email
-    email = requests.get(REGISTRATION['api'])
-    email_data = email.json()
-    user_email = email_data[0]['email']
+    #email = requests.get(REGISTRATION['api'])
+    #email_data = email.json()
+    #user_email = email_data[0]['email']
     print(user_email)
     # may also try input user email
 
