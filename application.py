@@ -108,6 +108,7 @@ welcome = """
     <h2>Get Informations:</h2>
     <ul>
     <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/health">Test Connectivity: append '/api/health'</a></li>
+    <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/get/[#num]">Get the number of tables indoor and outdoor availble for #num guests</a></li>
     </ul>
   </div>
 </body>
@@ -179,7 +180,7 @@ def get_health():
 #####################################################################################################################
 #                                        get available tables                                                       #
 #####################################################################################################################
-@application.route("/api/table_reserve/<num>", methods=["GET"])
+@application.route("/api/table_reserve/get/<num>", methods=["GET"])
 def reserve_indoor_table(num):
     # reserved tables
     reserves = requests.get(RESERVATION['api'])
