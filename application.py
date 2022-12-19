@@ -182,10 +182,23 @@ def get_health():
 #####################################################################################################################
 @application.route("/api/reservations/indoor/<num>", methods=["GET", "PUT"])
 def reserve_indoor_table(num):
-    tables = requests.get(TABLES['api'] + '/indoor/' + str(num))
+    # table id
+    tables = requests.get(TABLES['api'] + '/indoor/{}'.format(num))
     tables_data = tables.json()
+    table_id = tables_data[0]['table_id']
 
-    return
+    # user email
+    email = requests.get(REGISTRATION['api'])
+    email_data = email.json()
+    user_email = email_data[0]['email']
+
+    # put to reservation schema
+    resp = requests.put(RESERVATION['api'] + '/{}/{}'.format(user_email, table_id))
+    if resp.status_code == 200:
+        res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200, content_type="application.json")
+    else:
+        res = Response("Something went wrong", status=400, content_type="application.json")
+    return res
 
 @application.route("/api/reservations/outdoor/<num>", methods=["GET", "PUT"])
 def reserve_outdoor_table(num):

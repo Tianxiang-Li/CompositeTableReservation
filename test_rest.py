@@ -23,7 +23,7 @@ def t1():
 
 
 def t2():
-    table_url = "http://127.0.0.1:8000/api/reservations/indoor/2"
+    table_url = "http://127.0.0.1:8000/api/reservations/indoor/5"
     try:
         h_message = requests.get(table_url)
         if h_message.status_code == 200:
