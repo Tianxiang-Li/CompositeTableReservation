@@ -23,10 +23,10 @@ def t1():
 
 
 def t2():
-    #table_url = "http://127.0.0.1:8000/api/table_reserve/indoor/ddaass19970@gmail.com/5"
-    table_url = "http://127.0.0.1:8000/api/table_reserve/outdoor/5"
+    table_url = "http://127.0.0.1:8000/api/table_reserve/indoor/5"
+    #table_url = "http://127.0.0.1:8000/api/table_reserve/outdoor/5"
     try:
-        h_message = requests.get(table_url)
+        h_message = requests.put(table_url)
         if h_message.status_code == 200:
             print("\n\n Congratulations. Your end-to-end test worked. \n\n")
             print("Application Table message = \n")
@@ -34,6 +34,7 @@ def t2():
             print(json.dumps(data, indent=2))
             print("\n")
         else:
+            print(h_message.text)
             print("\n\n Epic Fail. Status code = ", h_message.status_code, "\n\n")
             print("\n")
     except Exception as e:

@@ -5,7 +5,7 @@ import requests
 import threading
 from threading import Thread
 from datetime import datetime, date
-
+from werkzeug.exceptions import HTTPException
 
 
 welcome = """
@@ -159,6 +159,60 @@ RESERVATION = {
     'api': 'http://ec2-54-235-224-149.compute-1.amazonaws.com:5011/api/reservations/'
 }
 
+def reserve_table(indoor, num):
+    # table id
+    tables = requests.get(TABLES['api'] + '/{}/{}'.format(indoor, num))
+    if tables.status_code != 200:
+        table_error = 'tables with {} seats {}'.format(num, tables.text)
+        print(table_error)
+        return Response(table_error, status=tables.status_code, content_type="application.json")
+    tables_data = tables.json()
+    table_id_ls = [t['table_id'] for t in tables_data]
+    print(table_id_ls)
+
+    # reserved tables
+    reserves = requests.get(RESERVATION['api'])
+    if reserves.status_code != 200:
+        print(reserves.text)
+        return Response(reserves.text, status=reserves.status_code, content_type="application.json")
+    reserves_data = reserves.json()
+    reserved_tables = set(r['table_id'] for r in reserves_data)
+    print(reserved_tables)
+
+    table_id = None
+    for tid in table_id_ls:
+        if tid not in reserved_tables:
+            table_id = tid
+            break
+    print(table_id)
+    if table_id is None:
+        return Response("No available indoor seats", status=404, content_type="application.json")
+
+    # user email
+    email = requests.get(REGISTRATION['api'])
+    if email.status_code != 200:
+        email_error = "Error finding email: " + email.text
+        print(email_error)
+        return Response(email_error, status=email.status_code, content_type="application.json")
+    email_data = email.json()
+    user_email = email_data['email']
+    print(user_email)
+    # may also try input user email
+
+    # put to reservation schema
+    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
+    print(reserve_api)
+    resp = requests.put(reserve_api)
+    if resp.status_code == 200:
+        res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200,
+                       content_type="application.json")
+    else:
+        resp_error = "Could not reserve: " + resp.text
+        print(resp_error)
+        res = Response(resp_error, status=resp.status_code, content_type="application.json")
+    return res
+
+
 @application.route("/", methods=["GET"])
 def simple_get():
     return welcome
@@ -211,88 +265,15 @@ def get_num_table(num):
 #####################################################################################################################
 #                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/table_reserve/indoor/<user_email>/<num>", methods=["GET", "PUT"])
-def reserve_indoor_table(user_email, num):
-    # table id
-    tables = requests.get(TABLES['api'] + '/indoor/{}'.format(num))
-    tables_data = tables.json()
-    table_id_ls = [t['table_id'] for t in tables_data]
-    print(table_id_ls)
-    # reserved tables
-    reserves = requests.get(RESERVATION['api'])
-    reserves_data = reserves.json()
-    reserved_tables = set(r['table_id'] for r in reserves_data)
-    print(reserved_tables)
-
-    table_id = None
-    for tid in table_id_ls:
-        if tid not in reserved_tables:
-            table_id = tid
-            break
-    print(table_id)
-    if table_id is None:
-        return Response("No available indoor seats", status=404, content_type="application.json")
-
-    # user email
-    #email = requests.get(REGISTRATION['api'])
-    #email_data = email.json()
-    #user_email = email_data[0]['email']
-    print(user_email)
-    # may also try input user email
-
-    # put to reservation schema
-    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
-    print(reserve_api)
-    resp = requests.put(reserve_api)
-    if resp.status_code == 200:
-        res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200, content_type="application.json")
-    else:
-        res = Response("Something went wrong", status=400, content_type="application.json")
-    return res
+@application.route("/api/table_reserve/indoor/<num>", methods=["GET", "PUT"])
+def reserve_indoor_table(num):
+    return reserve_table('indoor', num)
 
 #@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
 #def reserve_outdoor_table(num):
-@application.route("/api/table_reserve/outdoor/<user_email>/<num>", methods=["GET", "PUT"])
-def reserve_outdoor_table(user_email, num):
-    # table id
-    tables = requests.get(TABLES['api'] + '/outdoor/{}'.format(num))
-    tables_data = tables.json()
-    table_id_ls = [t['table_id'] for t in tables_data]
-    print(table_id_ls)
-    # reserved tables
-    reserves = requests.get(RESERVATION['api'])
-    reserves_data = reserves.json()
-    reserved_tables = set(r['table_id'] for r in reserves_data)
-    print(reserved_tables)
-
-    table_id = None
-    for tid in table_id_ls:
-        if tid not in reserved_tables:
-            table_id = tid
-            break
-    print(table_id)
-    if table_id is None:
-        return Response("No available outdoor seats", status=404, content_type="application.json")
-
-    # user email
-    #email = requests.get(REGISTRATION['api'])
-    #user_email = None
-    #if email.status_code == 200:
-    #    email_data = email.json()
-    #    user_email = email_data['email']
-    print(user_email)
-    # may also try input user email
-
-    # put to reservation schema
-    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
-    print(reserve_api)
-    resp = requests.put(reserve_api)
-    if resp.status_code == 200:
-        res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200,
-                       content_type="application.json")
-    else:
-        res = Response("Something went wrong", status=400, content_type="application.json")
-    return res
+@application.route("/api/table_reserve/outdoor/num>", methods=['GET','PUT'])
+def reserve_outdoor_table(num):
+    return reserve_table('outdoor', num)
 
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=8000)
