@@ -180,12 +180,13 @@ def get_health():
 #####################################################################################################################
 #                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/reservation/indoor/<num>", methods=["GET", "PUT"])
-def add_indoor_table(num):
-    pass
+@application.route("/api/reservations/indoor/<num>", methods=["GET", "PUT"])
+def reserve_indoor_table(num):
+    user_email = requests.get(REGISTRATION['api'])
+    print(user_email)
 
-@application.route("/api/reservation/outdoor/<num>", methods=["GET", "PUT"])
-def add_indoor_table(num):
+@application.route("/api/reservations/outdoor/<num>", methods=["GET", "PUT"])
+def reserve_outdoor_table(num):
     pass
 
 if __name__ == "__main__":
