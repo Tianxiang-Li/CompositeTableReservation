@@ -241,13 +241,17 @@ def reserve_indoor_table(user_email, num):
     # may also try input user email
 
     # put to reservation schema
-    resp = requests.put(RESERVATION['api'] + '/{}/{}'.format(user_email, table_id))
+    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
+    print(reserve_api)
+    resp = requests.put(reserve_api)
     if resp.status_code == 200:
         res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200, content_type="application.json")
     else:
         res = Response("Something went wrong", status=400, content_type="application.json")
     return res
 
+#@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
+#def reserve_outdoor_table(num):
 @application.route("/api/table_reserve/outdoor/<user_email>/<num>", methods=["GET", "PUT"])
 def reserve_outdoor_table(user_email, num):
     # table id
@@ -272,13 +276,17 @@ def reserve_outdoor_table(user_email, num):
 
     # user email
     #email = requests.get(REGISTRATION['api'])
-    #email_data = email.json()
-    #user_email = email_data[0]['email']
+    #user_email = None
+    #if email.status_code == 200:
+    #    email_data = email.json()
+    #    user_email = email_data['email']
     print(user_email)
     # may also try input user email
 
     # put to reservation schema
-    resp = requests.put(RESERVATION['api'] + '/{}/{}'.format(user_email, table_id))
+    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
+    print(reserve_api)
+    resp = requests.put(reserve_api)
     if resp.status_code == 200:
         res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200,
                        content_type="application.json")
