@@ -180,7 +180,7 @@ def get_health():
 #####################################################################################################################
 #                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/reservations/indoor/<num>", methods=["GET", "PUT"])
+@application.route("/api/table_reserve/indoor/<num>", methods=["GET", "PUT"])
 def reserve_indoor_table(num):
     # table id
     tables = requests.get(TABLES['api'] + '/indoor/{}'.format(num))
@@ -217,7 +217,7 @@ def reserve_indoor_table(num):
         res = Response("Something went wrong", status=400, content_type="application.json")
     return res
 
-@application.route("/api/reservations/outdoor/<num>", methods=["GET", "PUT"])
+@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
 def reserve_outdoor_table(num):
     # table id
     tables = requests.get(TABLES['api'] + '/outdoor/{}'.format(num))
