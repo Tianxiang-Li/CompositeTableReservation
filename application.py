@@ -4,7 +4,7 @@ import json
 import requests
 import threading
 from threading import Thread
-from datetime import datetime
+from datetime import datetime, date
 
 
 
@@ -176,6 +176,36 @@ def get_health():
 
     return result
 
+#####################################################################################################################
+#                                        get available tables                                                       #
+#####################################################################################################################
+@application.route("/api/table_reserve/<num>", methods=["GET"])
+def reserve_indoor_table(num):
+    # reserved tables
+    reserves = requests.get(RESERVATION['api'])
+    reserves_data = reserves.json()
+    reserved_tables = set(r['table_id'] for r in reserves_data)
+    print(reserved_tables)
+
+    # table id
+    tables = requests.get(TABLES['api'] + '/seats/{}'.format(num))
+    if not tables:
+        return Response("No available seats for {} guests".format(num), status=404, content_type="application.json")
+    tables_data = tables.json()
+    indoor = 0
+    outdoor = 0
+    for t in tables_data:
+        if t['table_id'] not in reserved_tables:
+            if t['indoor'] == 1:
+                indoor += 1
+            else:
+                outdoor += 1
+
+    msg = {
+        'indoor': indoor,
+        'outdoor': outdoor
+    }
+    return Response(json.dumps(msg), status=200, content_type="application/json")
 
 #####################################################################################################################
 #                                              reserve tables                                                       #
