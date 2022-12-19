@@ -2,9 +2,10 @@ from flask import Flask, Response, request
 from flask_cors import CORS
 import json
 import requests
+import threading
+from threading import Thread
 from datetime import datetime
-from requests_futures.sessions import FuturesSession
-from typing import *
+
 
 
 welcome = """
@@ -141,8 +142,21 @@ def application(environ, start_response):
 
 application = Flask(__name__)
 CORS(application)
-sess = FuturesSession()
 
+REGISTRATION = {
+    'microservice': 'Registration microservice',
+    'api': 'http://registration-env.eba-xi2mxgp6.us-east-1.elasticbeanstalk.com/get_email'
+}
+
+TABLES = {
+    'microservice': 'Tables Management microservice',
+    'api': 'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/get'
+}
+
+RESERVATION = {
+    'microservice': 'Reservation microservice',
+    'api': 'http://ec2-54-235-224-149.compute-1.amazonaws.com:5011/api/reservations/'
+}
 
 @application.route("/", methods=["GET"])
 def simple_get():
@@ -164,18 +178,15 @@ def get_health():
 
 
 #####################################################################################################################
-#                                                 add tables                                                        #
+#                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/tables/add/indoor/<cap>", methods=["GET", "PUT"])
-def add_indoor_table(cap):
-    result = Tables.add_table(cap, True)
-    if result:
-        rsp = Response(json.dumps(result), status=200, content_type="application.json")
-    else:
-        rsp = Response("NOT FOUND", status=404, content_type="text/plain")
+@application.route("/api/reservation/indoor/<num>", methods=["GET", "PUT"])
+def add_indoor_table(num):
+    pass
 
-    return rsp
-
+@application.route("/api/reservation/outdoor/<num>", methods=["GET", "PUT"])
+def add_indoor_table(num):
+    pass
 
 if __name__ == "__main__":
-    application.run(host="0.0.0.0", port=5000)
+    application.run(host="0.0.0.0", port=8000)
