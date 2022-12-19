@@ -99,15 +99,15 @@ welcome = """
     <h1>Table Reservation</h1>
     <p>This is the Composite Service for Table Reservation</p>
     <p>To add reservation:</p>
-    <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/add/indoor/[#capacity]' to add indoor table with #capacity number of seats.</p>
-    <p>'http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/tables/add/outdoor/[#capacity]' to add outdoor table with #capacity number of seats.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/[#num]' to reserve indoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/[#num]' to reserve outdoor table for #num number of guests.</p>
     <p>This environment is launched with Elastic Beanstalk Python Platform</p>
   </div>
   
   <div class="linksColumn"> 
     <h2>Get Informations:</h2>
     <ul>
-    <li><a href="http://restaurantreservationtable-env.eba-ursbzmrt.us-east-2.elasticbeanstalk.com/api/health">Test Connectivity: append '/api/health'</a></li>
+    <li><a href="http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/health">Test Connectivity: append '/api/health'</a></li>
     </ul>
   </div>
 </body>
