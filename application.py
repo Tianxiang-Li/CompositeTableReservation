@@ -182,8 +182,10 @@ def get_health():
 #####################################################################################################################
 @application.route("/api/reservations/indoor/<num>", methods=["GET", "PUT"])
 def reserve_indoor_table(num):
-    user_email = requests.get(REGISTRATION['api'])
-    print(user_email)
+    tables = requests.get(TABLES['api'] + '/indoor/' + str(num))
+    tables_data = tables.json()
+
+    return
 
 @application.route("/api/reservations/outdoor/<num>", methods=["GET", "PUT"])
 def reserve_outdoor_table(num):
