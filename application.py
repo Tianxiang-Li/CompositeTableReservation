@@ -181,7 +181,7 @@ def get_health():
 #                                        get available tables                                                       #
 #####################################################################################################################
 @application.route("/api/table_reserve/get/<num>", methods=["GET"])
-def reserve_indoor_table(num):
+def get_num_table(num):
     # reserved tables
     reserves = requests.get(RESERVATION['api'])
     reserves_data = reserves.json()
