@@ -204,8 +204,15 @@ def reserve_table(indoor, num):
     print(reserve_api)
     resp = requests.put(reserve_api)
     if resp.status_code == 200:
-        res = Response("Success on inserting for {}, {}".format(user_email, table_id), status=200,
-                       content_type="application.json")
+        resp_msg = resp.text
+        resp_msg_ls = resp_msg.split()
+        resp_starter = resp_msg_ls[0]
+        if resp_starter == "Success":
+            resp_text = "Successfully reserve table of {} guests for {}".format(num, user_email)
+        else:
+            resp_text = ' '.join(resp_msg_ls[:-5])
+
+        res = Response(resp_text, status=200, content_type="application.json")
     else:
         resp_error = "Could not reserve table of {} guests for {}: ".format(num, user_email) + resp.text
         print(resp_error)
