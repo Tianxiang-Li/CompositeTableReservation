@@ -279,7 +279,7 @@ def reserve_indoor_table(num):
 
 #@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
 #def reserve_outdoor_table(num):
-@application.route("/api/table_reserve/outdoor/num>", methods=['GET','PUT'])
+@application.route("/api/table_reserve/outdoor/<num>", methods=['GET','PUT'])
 def reserve_outdoor_table(num):
     return reserve_table('outdoor', num)
 
