@@ -210,7 +210,8 @@ def reserve_table(indoor, num):
         if resp_starter == "Success":
             resp_text = "Successfully reserve table of {} guests for {}".format(num, user_email)
         else:
-            resp_text = ' '.join(resp_msg_ls[:-5])
+            resp_text = "Created reservation of {} guests for {}. ".format(num, user_email)
+            resp_text += ' '.join(resp_msg_ls[:-5])
 
         res = Response(resp_text, status=200, content_type="application.json")
     else:
