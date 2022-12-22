@@ -99,8 +99,8 @@ welcome = """
     <h1>Table Reservation</h1>
     <p>This is the Composite Service for Table Reservation</p>
     <p>To add reservation:</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/<email>/[#num]' to reserve indoor table for #num number of guests.</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/<email>/[#num]' to reserve outdoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/[email]/[#num]' to reserve indoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/[email]/[#num]' to reserve outdoor table for #num number of guests.</p>
     <p>This environment is launched with Elastic Beanstalk Python Platform</p>
   </div>
   
