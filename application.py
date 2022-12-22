@@ -211,14 +211,14 @@ def reserve_table(email, indoor, num):
         resp_msg_ls = resp_msg.split()
         resp_starter = resp_msg_ls[0]
         if resp_starter == "Success":
-            resp_text = "Successfully reserved {} table of {} guests for {}".format(indoor, num, user_email)
+            resp_text = "Successfully reserved {} table of {} guests for {}".format(indoor, num, email)
         else:
-            resp_text = "Reserving {} table of {} guests for {}. Attention ".format(indoor, num, user_email)
+            resp_text = "Reserving {} table of {} guests for {}. Attention ".format(indoor, num, email)
             resp_text += ' '.join(resp_msg_ls[:-5])
 
         res = Response(resp_text, status=200, content_type="application.json")
     else:
-        resp_error = "Could not reserve table of {} guests for {}: ".format(num, user_email) + resp.text
+        resp_error = "Could not reserve table of {} guests for {}: ".format(num, email) + resp.text
         print(resp_error)
         res = Response(resp_error, status=resp.status_code, content_type="application.json")
     return res
