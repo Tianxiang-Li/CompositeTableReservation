@@ -99,8 +99,8 @@ welcome = """
     <h1>Table Reservation</h1>
     <p>This is the Composite Service for Table Reservation</p>
     <p>To add reservation:</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/[#num]' to reserve indoor table for #num number of guests.</p>
-    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/[#num]' to reserve outdoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/indoor/<email>/[#num]' to reserve indoor table for #num number of guests.</p>
+    <p>'http://compositetablereservation-env.eba-fxm55zhy.us-east-2.elasticbeanstalk.com/api/table_reserve/outdoor/<email>/[#num]' to reserve outdoor table for #num number of guests.</p>
     <p>This environment is launched with Elastic Beanstalk Python Platform</p>
   </div>
   
@@ -146,7 +146,7 @@ CORS(application)
 
 REGISTRATION = {
     'microservice': 'Registration microservice',
-    'api': 'http://registration-env.eba-xi2mxgp6.us-east-1.elasticbeanstalk.com/get_email'
+    'api': 'http://registration-env.eba-xi2mxgp6.us-east-1.elasticbeanstalk.com/'
 }
 
 TABLES = {
@@ -159,7 +159,7 @@ RESERVATION = {
     'api': 'http://ec2-54-235-224-149.compute-1.amazonaws.com:5011/api/reservations/'
 }
 
-def reserve_table(indoor, num):
+def reserve_table(email, indoor, num):
     # table id
     tables = requests.get(TABLES['api'] + '/{}/{}'.format(indoor, num))
     if tables.status_code != 200:
@@ -174,10 +174,11 @@ def reserve_table(indoor, num):
     reserves = requests.get(RESERVATION['api'])
     if reserves.status_code != 200:
         print(reserves.text)
-        return Response(reserves.text, status=reserves.status_code, content_type="application.json")
-    reserves_data = reserves.json()
-    reserved_tables = set(r['table_id'] for r in reserves_data)
-    print(reserved_tables)
+        reserved_tables = set()
+    else:
+        reserves_data = reserves.json()
+        reserved_tables = set(r['table_id'] for r in reserves_data)
+        print(reserved_tables)
 
     table_id = None
     for tid in table_id_ls:
@@ -189,18 +190,20 @@ def reserve_table(indoor, num):
         return Response("No available indoor seats", status=404, content_type="application.json")
 
     # user email
-    email = requests.get(REGISTRATION['api'])
-    if email.status_code != 200:
-        email_error = "Error finding email: " + email.text
+    registered_email = requests.get(REGISTRATION['api'] + "/api/check-registration/")
+    if registered_email.status_code != 200:
+        email_error = "Error finding registrations!"
         print(email_error)
         return Response(email_error, status=email.status_code, content_type="application.json")
-    email_data = email.json()
-    user_email = email_data['email']
+    email_data = registered_email.json()
+    user_email = set(e['email'] for e in email_data)
     print(user_email)
-    # may also try input user email
+    if email not in user_email:
+        return Response("Your email is not registered yet, please register first", status=404, content_type="text/plain")
+    # input user email
 
     # put to reservation schema
-    reserve_api = RESERVATION['api'] + '{}/{}'.format(user_email, table_id)
+    reserve_api = RESERVATION['api'] + '{}/{}'.format(email, table_id)
     print(reserve_api)
     resp = requests.put(reserve_api)
     if resp.status_code == 200:
@@ -239,6 +242,7 @@ def get_health():
 
     return result
 
+
 #####################################################################################################################
 #                                        get available tables                                                       #
 #####################################################################################################################
@@ -246,8 +250,11 @@ def get_health():
 def get_num_table(num):
     # reserved tables
     reserves = requests.get(RESERVATION['api'])
-    reserves_data = reserves.json()
-    reserved_tables = set(r['table_id'] for r in reserves_data)
+    if reserves.status_code == 200:
+        reserves_data = reserves.json()
+        reserved_tables = set(r['table_id'] for r in reserves_data)
+    else:
+        reserved_tables = set()
     print(reserved_tables)
 
     # table id
@@ -270,18 +277,19 @@ def get_num_table(num):
     }
     return Response(json.dumps(msg), status=200, content_type="application/json")
 
+
 #####################################################################################################################
 #                                              reserve tables                                                       #
 #####################################################################################################################
-@application.route("/api/table_reserve/indoor/<num>", methods=["GET", "PUT"])
-def reserve_indoor_table(num):
-    return reserve_table('indoor', num)
+@application.route("/api/table_reserve/indoor/<email>/<num>", methods=["GET", "PUT"])
+def reserve_indoor_table(email, num):
+    return reserve_table(email, 'indoor', num)
 
-#@application.route("/api/table_reserve/outdoor/<num>", methods=["GET", "PUT"])
-#def reserve_outdoor_table(num):
-@application.route("/api/table_reserve/outdoor/<num>", methods=['GET','PUT'])
-def reserve_outdoor_table(num):
-    return reserve_table('outdoor', num)
+
+@application.route("/api/table_reserve/outdoor/<email>/<num>", methods=['GET','PUT'])
+def reserve_outdoor_table(email, num):
+    return reserve_table(email, 'outdoor', num)
+
 
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=8000)

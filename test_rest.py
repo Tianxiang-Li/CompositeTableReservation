@@ -23,8 +23,8 @@ def t1():
 
 
 def t2():
-    table_url = "http://127.0.0.1:8000/api/table_reserve/indoor/5"
-    #table_url = "http://127.0.0.1:8000/api/table_reserve/outdoor/5"
+    #table_url = "http://127.0.0.1:8000/api/table_reserve/delete/example@email"
+    table_url = "http://127.0.0.1:8000/api/table_reserve/outdoor/ddaass19970@gmail.com/5"
     try:
         h_message = requests.put(table_url)
         if h_message.status_code == 200:
